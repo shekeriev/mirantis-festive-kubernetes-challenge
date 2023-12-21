@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-deployment
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      containers:
+      - name: {{ .Release.Name }}
+        image: jlnhnng/christmas-special:latest
+        ports:
+        - containerPort: 3000
+        env:
+        - name: REGION
+          value: {{ .Values.region }}
+        envFrom:
+        - secretRef:
+            name: {{ .Release.Name }}-secretdata
+        volumeMounts:
+        - name: secret-volume
+          mountPath: /etc/secret
+      volumes:
+      - name: secret-volume
+        secret:
+          secretName: {{ .Release.Name }}-secretdata
